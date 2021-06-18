@@ -23,4 +23,5 @@ To stratify each of the areas in the optimal number of strata using the followin
 ## Files in this repository
 
 * **Trojborg.rds:** The polygon in the Trøjborg area
+* **Husby.rds:** The polygon for the Husby area
 
