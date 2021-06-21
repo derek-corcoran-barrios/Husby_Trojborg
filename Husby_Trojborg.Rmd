@@ -1,0 +1,147 @@
+---
+title: "Untitled"
+author: "Derek Corcoran"
+date: "6/20/2021"
+output: powerpoint_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(dplyr)
+library(purrr)
+library(ggplot2)
+library(cowplot)
+library(tidyverse)
+library(patchwork)
+library(vegan)
+StrataHusby <- readRDS("StrataHusby.rds") 
+StrataHusby <- StrataHusby$results %>% t %>% 
+  as.data.frame() %>% mutate(Location = "Husby")
+
+StrataHusby$Groups <- 2:10
+
+StrataTrojborg <- readRDS("StrataTrojborg.rds")
+StrataTrojborg <- StrataTrojborg$results %>% t %>% 
+  as.data.frame() %>% mutate(Location = "Trojborg")
+
+StrataTrojborg$Groups <- 2:10
+
+Strata <- bind_rows(StrataHusby, StrataTrojborg)
+
+HusbyRaster <- readRDS("HusbyRaster.rds")
+
+HusbyRaster_DF <- HusbyRaster %>% as("SpatialPixelsDataFrame") %>% 
+  as.data.frame() %>% 
+  pivot_longer(twi:asiltnor)
+
+Husby <- readRDS("~/Documents/Husby_Trojborg/Husby.rds")
+
+## Trojborg
+
+TrojborgRaster <- readRDS("TrojborgRaster.rds")
+
+TrojborgRaster_DF <- TrojborgRaster %>% as("SpatialPixelsDataFrame") %>% 
+  as.data.frame() %>% 
+  pivot_longer(twi:asiltnor)
+
+Trojborg <- readRDS("~/Documents/Husby_Trojborg/Trojborg.rds")
+
+##
+
+GroupsHusby <- readRDS("GroupsHusby.rds")
+GroupsTrojborg <- readRDS("GroupsTrojborg.rds")
+
+GroupsHusby_DF <- GroupsHusby %>%
+  as("SpatialPixelsDataFrame") %>% 
+  as.data.frame() %>% 
+  rename(group = twi) %>% 
+  mutate(group = paste("Class", group))
+
+
+GroupsTrojborg_DF <- GroupsTrojborg %>%
+  as("SpatialPixelsDataFrame") %>% 
+  as.data.frame() %>% 
+  rename(group = twi) %>% 
+  mutate(group = paste("Class", group))
+```
+
+## Variables Husby
+
+```{r}
+HusbyRaster_DF %>% 
+  mutate(name = case_when(name == "aclaynor" ~ "Clay",
+                          name == "afsandno" ~ "Fine sand",
+                          name == "agsandno" ~ "Coarse sand",
+                          name == "asiltnor" ~ "Silt",
+                          TRUE ~ name)) %>% 
+  group_split(name) %>% 
+  map(
+    ~ggplot() + geom_sf(data = Husby) + 
+      geom_raster(data = .x, aes(x = x, y = y, fill = value)) +
+      theme_void() +
+      theme(legend.position = "none") +
+      scale_fill_viridis_c(name = "",na.value="transparent", option = "A") + 
+      scale_x_continuous(breaks = c(8.13, 8.14 ,8.15)) +
+      scale_y_continuous(breaks = c(56.29, 56.295, 56.3)) +
+      labs(x = NULL, y = NULL) +
+      facet_grid(~ name, labeller = function(x) label_value(x, multi_line = FALSE))
+  ) %>% 
+  plot_grid(plotlist = ., align = 'hv', ncol = 4)
+```
+
+## Variables Trojborg
+
+```{r}
+TrojborgRaster_DF %>% 
+  mutate(name = case_when(name == "aclaynor" ~ "Clay",
+                          name == "afsandno" ~ "Fine sand",
+                          name == "agsandno" ~ "Coarse sand",
+                          name == "asiltnor" ~ "Silt",
+                          TRUE ~ name)) %>% 
+  group_split(name) %>% 
+  map(
+    ~ggplot() + geom_sf(data = Trojborg) + 
+      geom_raster(data = .x, aes(x = x, y = y, fill = value)) +
+      theme_void() +
+      theme(legend.position = "none") +
+      scale_fill_viridis_c(name = "",na.value="transparent", option = "A") + 
+      scale_x_continuous(breaks = c(8.13, 8.14 ,8.15)) +
+      scale_y_continuous(breaks = c(56.29, 56.295, 56.3)) +
+      labs(x = NULL, y = NULL) +
+      facet_grid(~ name, labeller = function(x) label_value(x, multi_line = FALSE))
+  ) %>% 
+  plot_grid(plotlist = ., align = 'hv', ncol = 4)
+```
+
+## Optimal strata 
+
+* Used Simple Structure Index to determine optimal Strata
+* Between 2 and 10 groups, 100 iterations
+* 9 groups Husby, 5 groups Trojborg
+
+```{r}
+ggplot(Strata, aes(x = Groups, y = ssi)) + geom_path() + geom_point() + facet_wrap(~Location) + theme_bw()
+```
+
+
+## Groups 
+
+```{r}
+G1 <- ggplot() + geom_sf(data = Husby) +
+  geom_raster(data = GroupsHusby_DF, aes(x = x, y = y, fill = group)) +
+  scale_fill_discrete(name = "",na.value="transparent") +
+  theme_bw()  + 
+      scale_x_continuous(breaks = c(8.13, 8.14 ,8.15)) +
+      scale_y_continuous(breaks = c(56.29, 56.295, 56.3)) +
+      labs(x = NULL, y = NULL, title = "Husby") + theme(legend.position = "none")
+
+G2 <- ggplot() + geom_sf(data = Trojborg) +
+  geom_raster(data = GroupsTrojborg_DF, aes(x = x, y = y, fill = group)) +
+  scale_fill_discrete(name = "",na.value="transparent") +
+  theme_bw()  + 
+      scale_x_continuous(breaks = c(8.45, 8.465 ,8.48)) +
+      scale_y_continuous(breaks = c(57.015, 57.030)) +
+      labs(x = NULL, y = NULL, title = "Trojborg") + theme(legend.position = "none")
+G1 + G2
+```
+
