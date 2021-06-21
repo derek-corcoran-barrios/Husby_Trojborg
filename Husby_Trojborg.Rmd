@@ -76,8 +76,9 @@ HusbyRaster_DF %>%
                           TRUE ~ name)) %>% 
   group_split(name) %>% 
   map(
-    ~ggplot() + geom_sf(data = Husby) + 
+    ~ggplot() +  
       geom_raster(data = .x, aes(x = x, y = y, fill = value)) +
+      geom_sf(data = Husby, alpha = 0) +
       theme_void() +
       theme(legend.position = "none") +
       scale_fill_viridis_c(name = "",na.value="transparent", option = "A") + 
@@ -100,8 +101,9 @@ TrojborgRaster_DF %>%
                           TRUE ~ name)) %>% 
   group_split(name) %>% 
   map(
-    ~ggplot() + geom_sf(data = Trojborg) + 
+    ~ggplot()  + 
       geom_raster(data = .x, aes(x = x, y = y, fill = value)) +
+      geom_sf(data = Trojborg, alpha = 0) +
       theme_void() +
       theme(legend.position = "none") +
       scale_fill_viridis_c(name = "",na.value="transparent", option = "A") + 
@@ -117,7 +119,7 @@ TrojborgRaster_DF %>%
 
 * Used Simple Structure Index to determine optimal Strata
 * Between 2 and 10 groups, 100 iterations
-* 9 groups Husby, 5 groups Trojborg
+* 6 groups Husby, 4 groups Trojborg
 
 ```{r}
 ggplot(Strata, aes(x = Groups, y = ssi)) + geom_path() + geom_point() + facet_wrap(~Location) + theme_bw()
@@ -127,16 +129,18 @@ ggplot(Strata, aes(x = Groups, y = ssi)) + geom_path() + geom_point() + facet_wr
 ## Groups 
 
 ```{r}
-G1 <- ggplot() + geom_sf(data = Husby) +
+G1 <- ggplot() + 
   geom_raster(data = GroupsHusby_DF, aes(x = x, y = y, fill = group)) +
+  geom_sf(data = Husby, alpha = 0) +
   scale_fill_discrete(name = "",na.value="transparent") +
   theme_bw()  + 
       scale_x_continuous(breaks = c(8.13, 8.14 ,8.15)) +
       scale_y_continuous(breaks = c(56.29, 56.295, 56.3)) +
       labs(x = NULL, y = NULL, title = "Husby") + theme(legend.position = "none")
 
-G2 <- ggplot() + geom_sf(data = Trojborg) +
+G2 <- ggplot() + 
   geom_raster(data = GroupsTrojborg_DF, aes(x = x, y = y, fill = group)) +
+  geom_sf(data = Trojborg, alpha = 0) +
   scale_fill_discrete(name = "",na.value="transparent") +
   theme_bw()  + 
       scale_x_continuous(breaks = c(8.45, 8.465 ,8.48)) +
