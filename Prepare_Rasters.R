@@ -8,7 +8,9 @@ Husby <- readRDS("Husby.rds") %>% st_transform(crs= "+proj=utm +zone=32 +ellps=G
 
 Trojborg <-readRDS("Trojborg.rds") %>% st_transform(crs= "+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs")
 
-Shapes <- list(Husby, Trojborg)
+Shapes <- list(Husby, Trojborg) %>% purrr::map(~st_buffer(.x,dist = 100)) %>% 
+  purrr::map(st_union) %>% 
+  purrr::map(st_as_sf)
 
 # crop the lidar rasters
 

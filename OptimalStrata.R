@@ -11,7 +11,7 @@ ForK <- as.data.frame(Husby) %>%
   tibble::rowid_to_column(var = "ID") %>% 
   dplyr::filter_all(~!is.na(.x)) 
 
-TestHusby <- cascadeKM(ForK[,-1],inf.gr = 2, sup.gr = 10, iter = 100)
+TestHusby <- cascadeKM(ForK[,-1],inf.gr = 2, sup.gr = 10, iter = 100, criterion = "ssi")
 
 plot(TestHusby)
 
@@ -21,7 +21,7 @@ Results <- TestHusby$results %>% t %>%
 Results$Groups <- make_clean_names(rownames(Results))
 
 Selected <- Results %>% 
-  dplyr::filter(calinski == max(calinski)) %>% 
+  dplyr::filter(ssi == max(ssi)) %>% 
   pull(Groups)
 
 Partition <- TestHusby$partition %>% 
@@ -46,7 +46,7 @@ ForK <- as.data.frame(Trojborg) %>%
   tibble::rowid_to_column(var = "ID") %>% 
   dplyr::filter_all(~!is.na(.x)) 
 
-TestTrojborg <- cascadeKM(ForK[,-1],inf.gr = 2, sup.gr = 10, iter = 100)
+TestTrojborg <- cascadeKM(ForK[,-1],inf.gr = 2, sup.gr = 10, iter = 100, criterion = "ssi")
 
 plot(TestTrojborg)
 
@@ -56,7 +56,7 @@ Results <- TestTrojborg$results %>% t %>%
 Results$Groups <- make_clean_names(rownames(Results))
 
 Selected <- Results %>% 
-  dplyr::filter(calinski == max(calinski)) %>% 
+  dplyr::filter(ssi == max(ssi)) %>% 
   pull(Groups)
 
 Partition <- TestTrojborg$partition %>% 
