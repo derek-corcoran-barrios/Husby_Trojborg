@@ -16,3 +16,4 @@ following layers:
 ## Files in this repository
 
 -   **Trojborg.rds:** The polygon in the Trøjborg area
+-   **Husby.rds:** The polygon for the Husby area
